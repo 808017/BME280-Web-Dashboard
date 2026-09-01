@@ -3,7 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ESP32 BME280 AWS Dashboard</title>
+  <title>IoT ISE - 2 · Environmental Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 <script src="https://sdk.amazonaws.com/js/aws-sdk-2.1692.0.min.js"></script>
 <script src="iot-sdk-browser.js"></script>
@@ -11,19 +14,23 @@
 </head>
 <body>
 <main class="container">
-  <header class="hero">
-    <div>
-      <div class="eyebrow">AWS IoT • ESP32 • BME280</div>
-      <h1>Environmental Monitor</h1>
-      <p>Near-real-time sensor monitoring with AWS</p>
+
+  <header class="hero card">
+    <div class="hero-main">
+      <p class="eyebrow">Project dashboard</p>
+      <h1>IoT ISE - 2</h1>
+      <p class="tagline">Environmental telemetry from an ESP32 and BME280 sensor, streamed live through AWS IoT and logged to DynamoDB for historical review.</p>
     </div>
-    <div id="liveStatus" class="status connecting"><span></span> CONNECTING</div>
+    <div class="hero-side">
+      <div id="liveStatus" class="status connecting"><span></span> Connecting</div>
+      <p class="hero-note">Connected with temporary Cognito credentials over MQTT/WebSockets</p>
+    </div>
   </header>
 
   <section class="live-banner card">
-    <div>
-      <strong>LIVE MQTT</strong>
-      <span id="liveMessage">Waiting for bme280/live...</span>
+    <div class="live-banner-text">
+      <strong>Live feed</strong>
+      <span id="liveMessage">Waiting for bme280/live&hellip;</span>
     </div>
     <div class="topic">bme280/live</div>
   </section>
@@ -31,30 +38,30 @@
   <section class="metrics">
     <article class="metric card">
       <div class="metric-label">Temperature</div>
-      <div class="metric-value"><span id="currentTemp">--</span><small>°C</small></div>
+      <div class="metric-value"><span id="currentTemp">&ndash;&ndash;</span><small>&deg;C</small></div>
       <div class="metric-sub">Live from ESP32</div>
     </article>
     <article class="metric card">
       <div class="metric-label">Humidity</div>
-      <div class="metric-value"><span id="currentHum">--</span><small>%</small></div>
+      <div class="metric-value"><span id="currentHum">&ndash;&ndash;</span><small>%</small></div>
       <div class="metric-sub">Live from ESP32</div>
     </article>
     <article class="metric card">
       <div class="metric-label">Device</div>
-      <div class="metric-value device-value" id="device">--</div>
-      <div class="metric-sub">ESP32 sensor node</div>
+      <div class="metric-value device-value" id="device">&ndash;&ndash;</div>
+      <div class="metric-sub">Sensor node</div>
     </article>
     <article class="metric card">
-      <div class="metric-label">Last Live Update</div>
-      <div class="metric-value time-value" id="lastUpdate">--</div>
+      <div class="metric-label">Last update</div>
+      <div class="metric-value time-value" id="lastUpdate">&ndash;&ndash;</div>
       <div class="metric-sub" id="updateAge">Waiting for live data</div>
     </article>
   </section>
 
   <section class="toolbar card">
     <div>
-      <h2>Sensor History</h2>
-      <p id="rangeText">Loading history...</p>
+      <h2>Sensor history</h2>
+      <p id="rangeText">Loading history&hellip;</p>
     </div>
     <div class="range-buttons">
       <button data-hours="0.25" class="range active">15 min</button>
@@ -65,17 +72,17 @@
   </section>
 
   <section class="stats-grid">
-    <article class="stat card"><span>Temperature Min</span><strong id="tempMin">--</strong> °C</article>
-    <article class="stat card"><span>Temperature Avg</span><strong id="tempAvg">--</strong> °C</article>
-    <article class="stat card"><span>Temperature Max</span><strong id="tempMax">--</strong> °C</article>
-    <article class="stat card"><span>Humidity Min</span><strong id="humMin">--</strong> %</article>
-    <article class="stat card"><span>Humidity Avg</span><strong id="humAvg">--</strong> %</article>
-    <article class="stat card"><span>Humidity Max</span><strong id="humMax">--</strong> %</article>
+    <article class="stat card"><span>Temp min</span><strong id="tempMin">&ndash;&ndash;</strong> &deg;C</article>
+    <article class="stat card"><span>Temp avg</span><strong id="tempAvg">&ndash;&ndash;</strong> &deg;C</article>
+    <article class="stat card"><span>Temp max</span><strong id="tempMax">&ndash;&ndash;</strong> &deg;C</article>
+    <article class="stat card"><span>Humidity min</span><strong id="humMin">&ndash;&ndash;</strong> %</article>
+    <article class="stat card"><span>Humidity avg</span><strong id="humAvg">&ndash;&ndash;</strong> %</article>
+    <article class="stat card"><span>Humidity max</span><strong id="humMax">&ndash;&ndash;</strong> %</article>
   </section>
 
   <section class="chart-card card">
     <div class="chart-title">
-      <div><h2>Temperature</h2><p>Historical temperature readings</p></div>
+      <div><h2>Temperature</h2><p>Historical readings for the selected range</p></div>
       <span class="reading-count" id="tempCount">0 readings</span>
     </div>
     <div class="chart-wrap"><canvas id="tempChart"></canvas></div>
@@ -83,7 +90,7 @@
 
   <section class="chart-card card">
     <div class="chart-title">
-      <div><h2>Humidity</h2><p>Historical humidity readings</p></div>
+      <div><h2>Humidity</h2><p>Historical readings for the selected range</p></div>
       <span class="reading-count" id="humCount">0 readings</span>
     </div>
     <div class="chart-wrap"><canvas id="humChart"></canvas></div>
@@ -101,7 +108,8 @@
   </section>
 
   <footer>
-    Live: MQTT/WebSocket • History: DynamoDB → Lambda → API Gateway • History refresh: 15 seconds
+    <p>IoT ISE - 2</p>
+    <p>Live data arrives over MQTT/WebSockets. Historical data is written to DynamoDB, served through a Lambda-backed API, and refreshed here every 15 seconds.</p>
   </footer>
 </main>
 <script src="app.js"></script>
