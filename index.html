@@ -13,18 +13,26 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+<div class="grain"></div>
 <main class="container">
 
   <header class="hero card">
-    <div class="hero-main">
-      <p class="eyebrow">Project dashboard</p>
-      <h1>IoT ISE - 2</h1>
-      <p class="tagline">Environmental telemetry from an ESP32 and BME280 sensor, streamed live through AWS IoT and logged to DynamoDB for historical review.</p>
+    <div class="hero-top">
+      <div class="hero-main">
+        <p class="eyebrow">Project dashboard</p>
+        <h1>IoT ISE - 2</h1>
+        <p class="tagline">Environmental telemetry from an ESP32 and BME280 sensor, streamed live through AWS IoT and logged to DynamoDB for historical review.</p>
+      </div>
+      <div class="hero-side">
+        <div id="liveStatus" class="status connecting"><span></span> Connecting</div>
+        <p class="hero-note">Connected with temporary Cognito credentials over MQTT/WebSockets</p>
+      </div>
     </div>
-    <div class="hero-side">
-      <div id="liveStatus" class="status connecting"><span></span> Connecting</div>
-      <p class="hero-note">Connected with temporary Cognito credentials over MQTT/WebSockets</p>
-    </div>
+    <svg class="hero-contours" viewBox="0 0 600 140" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0,110 C120,60 180,140 300,90 C420,40 480,120 600,70" />
+      <path d="M0,130 C140,90 200,150 320,110 C440,70 500,140 600,100" />
+      <path d="M0,90 C100,40 220,120 340,70 C460,20 520,100 600,50" />
+    </svg>
   </header>
 
   <section class="live-banner card">
@@ -35,27 +43,73 @@
     <div class="topic">bme280/live</div>
   </section>
 
-  <section class="metrics">
-    <article class="metric card">
-      <div class="metric-label">Temperature</div>
-      <div class="metric-value"><span id="currentTemp">&ndash;&ndash;</span><small>&deg;C</small></div>
+  <section class="gauges">
+    <article class="gauge-card card">
+      <div class="gauge-label">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 14.76V4a2 2 0 1 0-4 0v10.76a4 4 0 1 0 4 0Z"/></svg>
+        Temperature
+      </div>
+      <div class="gauge" data-min="-10" data-max="50" data-target="currentTemp">
+        <svg viewBox="0 0 140 78" class="gauge-svg">
+          <defs>
+            <linearGradient id="tempGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#3AA0D8"/>
+              <stop offset="55%" stop-color="#35D6A0"/>
+              <stop offset="100%" stop-color="#FF7A45"/>
+            </linearGradient>
+          </defs>
+          <path class="gauge-track" d="M10,70 A58,58 0 0 1 130,70"/>
+          <path class="gauge-fill" stroke="url(#tempGradient)" d="M10,70 A58,58 0 0 1 130,70"/>
+        </svg>
+        <div class="gauge-readout">
+          <span id="currentTemp">&ndash;&ndash;</span><small>&deg;C</small>
+        </div>
+      </div>
+      <div class="gauge-scale"><span>&minus;10&deg;</span><span>50&deg;</span></div>
       <div class="metric-sub">Live from ESP32</div>
     </article>
-    <article class="metric card">
-      <div class="metric-label">Humidity</div>
-      <div class="metric-value"><span id="currentHum">&ndash;&ndash;</span><small>%</small></div>
+
+    <article class="gauge-card card">
+      <div class="gauge-label">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2.5s7 8.2 7 13a7 7 0 1 1-14 0c0-4.8 7-13 7-13Z"/></svg>
+        Humidity
+      </div>
+      <div class="gauge" data-min="0" data-max="100" data-target="currentHum">
+        <svg viewBox="0 0 140 78" class="gauge-svg">
+          <defs>
+            <linearGradient id="humGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#274C4F"/>
+              <stop offset="100%" stop-color="#35D6A0"/>
+            </linearGradient>
+          </defs>
+          <path class="gauge-track" d="M10,70 A58,58 0 0 1 130,70"/>
+          <path class="gauge-fill" stroke="url(#humGradient)" d="M10,70 A58,58 0 0 1 130,70"/>
+        </svg>
+        <div class="gauge-readout">
+          <span id="currentHum">&ndash;&ndash;</span><small>%</small>
+        </div>
+      </div>
+      <div class="gauge-scale"><span>0%</span><span>100%</span></div>
       <div class="metric-sub">Live from ESP32</div>
     </article>
-    <article class="metric card">
-      <div class="metric-label">Device</div>
-      <div class="metric-value device-value" id="device">&ndash;&ndash;</div>
-      <div class="metric-sub">Sensor node</div>
-    </article>
-    <article class="metric card">
-      <div class="metric-label">Last update</div>
-      <div class="metric-value time-value" id="lastUpdate">&ndash;&ndash;</div>
-      <div class="metric-sub" id="updateAge">Waiting for live data</div>
-    </article>
+
+    <div class="mini-stats">
+      <article class="mini-stat card">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="7" y="7" width="10" height="10" rx="1.5"/><path d="M9 3v3M15 3v3M9 18v3M15 18v3M3 9h3M3 15h3M18 9h3M18 15h3"/></svg>
+        <div>
+          <div class="mini-stat-label">Device</div>
+          <div class="mini-stat-value" id="device">&ndash;&ndash;</div>
+        </div>
+      </article>
+      <article class="mini-stat card">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>
+        <div>
+          <div class="mini-stat-label">Last update</div>
+          <div class="mini-stat-value" id="lastUpdate">&ndash;&ndash;</div>
+          <div class="mini-stat-sub" id="updateAge">Waiting for live data</div>
+        </div>
+      </article>
+    </div>
   </section>
 
   <section class="toolbar card">
@@ -113,5 +167,6 @@
   </footer>
 </main>
 <script src="app.js"></script>
+<script src="gauges.js"></script>
 </body>
 </html>

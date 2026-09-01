@@ -786,6 +786,20 @@ function makeChart(
     );
 
 
+  const isTemp = canvasId === "tempChart";
+  const lineColor = isTemp ? "#FF7A45" : "#35D6A0";
+
+  const ctx = $(canvasId).getContext("2d");
+  const fillGradient = ctx.createLinearGradient(0, 0, 0, 320);
+
+  if (isTemp) {
+    fillGradient.addColorStop(0, "rgba(255,122,69,.28)");
+    fillGradient.addColorStop(1, "rgba(255,122,69,0)");
+  } else {
+    fillGradient.addColorStop(0, "rgba(53,214,160,.28)");
+    fillGradient.addColorStop(1, "rgba(53,214,160,0)");
+  }
+
   return new Chart(
     $(canvasId),
     {
@@ -801,10 +815,16 @@ function makeChart(
             data: values,
 
             borderColor:
-              "#36a7ff",
+              lineColor,
 
             backgroundColor:
-              "rgba(54,167,255,.10)",
+              fillGradient,
+
+            pointBackgroundColor:
+              lineColor,
+
+            pointBorderColor:
+              "#0B1718",
 
             borderWidth: 2,
 
@@ -834,11 +854,17 @@ function makeChart(
 
           legend: {
             labels: {
-              color: "#e8f0fb"
+              color: "#F2F6F4",
+              font: { family: "IBM Plex Mono", size: 12 }
             }
           },
 
           tooltip: {
+            backgroundColor: "#122528",
+            borderColor: "#274C4F",
+            borderWidth: 1,
+            titleFont: { family: "IBM Plex Mono" },
+            bodyFont: { family: "IBM Plex Mono" },
             callbacks: {
 
               label: c =>
@@ -852,25 +878,27 @@ function makeChart(
           x: {
 
             ticks: {
-              color: "#8fa4bd",
-              maxTicksLimit: 12
+              color: "#8FAFAE",
+              maxTicksLimit: 12,
+              font: { family: "IBM Plex Mono", size: 11 }
             },
 
             grid: {
               color:
-                "rgba(100,130,165,.18)"
+                "rgba(143,175,174,.10)"
             }
           },
 
           y: {
 
             ticks: {
-              color: "#8fa4bd"
+              color: "#8FAFAE",
+              font: { family: "IBM Plex Mono", size: 11 }
             },
 
             grid: {
               color:
-                "rgba(100,130,165,.22)"
+                "rgba(143,175,174,.14)"
             }
           }
         }
