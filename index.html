@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESP32 BME280 AWS Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+<script src="https://sdk.amazonaws.com/js/aws-sdk-2.1692.0.min.js"></script>
+<script src="iot-sdk-browser.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+<main class="container">
+  <header class="hero">
+    <div>
+      <div class="eyebrow">AWS IoT • ESP32 • BME280</div>
+      <h1>Environmental Monitor</h1>
+      <p>Near-real-time sensor monitoring with AWS</p>
+    </div>
+    <div id="liveStatus" class="status connecting"><span></span> CONNECTING</div>
+  </header>
+
+  <section class="live-banner card">
+    <div>
+      <strong>LIVE MQTT</strong>
+      <span id="liveMessage">Waiting for bme280/live...</span>
+    </div>
+    <div class="topic">bme280/live</div>
+  </section>
+
+  <section class="metrics">
+    <article class="metric card">
+      <div class="metric-label">Temperature</div>
+      <div class="metric-value"><span id="currentTemp">--</span><small>°C</small></div>
+      <div class="metric-sub">Live from ESP32</div>
+    </article>
+    <article class="metric card">
+      <div class="metric-label">Humidity</div>
+      <div class="metric-value"><span id="currentHum">--</span><small>%</small></div>
+      <div class="metric-sub">Live from ESP32</div>
+    </article>
+    <article class="metric card">
+      <div class="metric-label">Device</div>
+      <div class="metric-value device-value" id="device">--</div>
+      <div class="metric-sub">ESP32 sensor node</div>
+    </article>
+    <article class="metric card">
+      <div class="metric-label">Last Live Update</div>
+      <div class="metric-value time-value" id="lastUpdate">--</div>
+      <div class="metric-sub" id="updateAge">Waiting for live data</div>
+    </article>
+  </section>
+
+  <section class="toolbar card">
+    <div>
+      <h2>Sensor History</h2>
+      <p id="rangeText">Loading history...</p>
+    </div>
+    <div class="range-buttons">
+      <button data-hours="0.25" class="range active">15 min</button>
+      <button data-hours="1" class="range">1 hour</button>
+      <button data-hours="6" class="range">6 hours</button>
+      <button data-hours="24" class="range">24 hours</button>
+    </div>
+  </section>
+
+  <section class="stats-grid">
+    <article class="stat card"><span>Temperature Min</span><strong id="tempMin">--</strong> °C</article>
+    <article class="stat card"><span>Temperature Avg</span><strong id="tempAvg">--</strong> °C</article>
+    <article class="stat card"><span>Temperature Max</span><strong id="tempMax">--</strong> °C</article>
+    <article class="stat card"><span>Humidity Min</span><strong id="humMin">--</strong> %</article>
+    <article class="stat card"><span>Humidity Avg</span><strong id="humAvg">--</strong> %</article>
+    <article class="stat card"><span>Humidity Max</span><strong id="humMax">--</strong> %</article>
+  </section>
+
+  <section class="chart-card card">
+    <div class="chart-title">
+      <div><h2>Temperature</h2><p>Historical temperature readings</p></div>
+      <span class="reading-count" id="tempCount">0 readings</span>
+    </div>
+    <div class="chart-wrap"><canvas id="tempChart"></canvas></div>
+  </section>
+
+  <section class="chart-card card">
+    <div class="chart-title">
+      <div><h2>Humidity</h2><p>Historical humidity readings</p></div>
+      <span class="reading-count" id="humCount">0 readings</span>
+    </div>
+    <div class="chart-wrap"><canvas id="humChart"></canvas></div>
+  </section>
+
+  <section class="footer-card card">
+    <div>
+      <strong>History API</strong>
+      <code>https://2z0d7ogwo0.execute-api.us-east-1.amazonaws.com/data</code>
+    </div>
+    <div class="footer-actions">
+      <button id="downloadCsv" class="secondary">Download CSV</button>
+      <button id="refreshNow" class="primary">Refresh history</button>
+    </div>
+  </section>
+
+  <footer>
+    Live: MQTT/WebSocket • History: DynamoDB → Lambda → API Gateway • History refresh: 15 seconds
+  </footer>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
